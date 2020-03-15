@@ -1,9 +1,9 @@
 ---
 title: "Informe Financiero"
 output:
-  rmdformats::material:
-    highlight: kate
-    cards: true
+  prettydoc::html_pretty:
+    theme: cayman
+    highlight: github
 ---
 ```{r setup, echo=FALSE, cache=FALSE}
 library(knitr)
@@ -40,7 +40,7 @@ ggplot_add.interactivity <- function(object, plot, object_name) {
 }
 ```
 
-# Cuentas en pesos {.tabset}
+# Cuentas en pesos
 
 ```{r}
 # Meses a incluir
@@ -115,7 +115,7 @@ saldo_santander <- cuenta_banco_santander %>%
 
 Comming soon
 
-# Cuentas en dólares {.tabset}
+# Cuentas en dólares
 
 ### Anual
 
