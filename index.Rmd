@@ -1,0 +1,125 @@
+---
+title: "Informe Financiero"
+output:
+  rmdformats::material:
+    highlight: kate
+    cards: true
+---
+```{r setup, echo=FALSE, cache=FALSE}
+library(knitr)
+library(rmdformats)
+
+## Global options
+options(max.print="75")
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE,
+	cache = TRUE,
+	comment = NA,
+	prompt = FALSE,
+	tidy = TRUE
+)
+opts_knit$set(width=75)
+
+```
+
+```{r}
+library(tidyverse)
+library(googlesheets4)
+library(plotly)
+
+plotly <- function() {
+  out <- list()
+  class(out) <- c("interactivity")
+  out
+}
+
+ggplot_add.interactivity <- function(object, plot, object_name) {
+  plotly::ggplotly(plot)
+}
+```
+
+# Cuentas en pesos {.tabset}
+
+```{r}
+# Meses a incluir
+meses <- c("Ene", "Feb", "Mar")
+
+# Saldo inicial
+saldo_inicial_bbva <- 1571108.20
+saldo_inicial_santander <- 0.0
+
+# Planillas
+options(gargle_oauth_email = "paola@expedicionciencia.org.ar")
+transferencias <- read_sheet("https://docs.google.com/spreadsheets/d/1N6FGnCIkiw1xg1_do2KnTPFQkTIBv5oT94R0-ICraUA/edit#gid=0") %>% 
+  rename(Destinatario = `A quien / CUIT / CBU`, 
+         Concepto = `Concepto (n° de facturas, detalle)`)
+
+cuenta_banco_bbva <- map(meses, ~ read_sheet("https://docs.google.com/spreadsheets/d/152XYQwKsdHEOFtUmTNUy4wV7R90MNUy-Q9sAXh_tVGE/edit#gid=140125494", sheet = .x)) %>% 
+  bind_rows() %>% 
+  left_join(select(transferencias, c("OrdenPago", "Proyecto", "SubProyecto")), by = c("OP" = "OrdenPago")) %>% 
+  select(-`Fecha Valor`, -Codigo, -`Número Documento`) %>% 
+  mutate(banco = "BBVA")
+
+cuenta_banco_santander <- map(meses, ~ read_sheet("https://docs.google.com/spreadsheets/d/1GzYlyVzxWuvTJLJ0_f362lgq0GOZ4mw8QLzRL9CgAvo/edit#gid=0", sheet = .x)) %>% 
+  bind_rows() %>% 
+  mutate(signo = if_else(`Importe Pesos` >= 0, "Crédito", "Débito")) %>% 
+  pivot_wider(names_from = signo, values_from = `Importe Pesos`) %>% 
+  left_join(select(transferencias, c("OrdenPago", "Proyecto", "SubProyecto")), by = c("OP" = "OrdenPago")) %>% 
+  select(-`Desc. Sucursal`, -`Cod. Operativo`, -Referencia) %>% 
+  mutate(banco = "Santander Río")
+```
+
+### Anual 
+
+Saldos diarios en la cuenta en pesos del banco BBVA
+
+```{r}
+saldo_bbva <- cuenta_banco_bbva %>% 
+  group_by(Fecha, banco) %>% 
+  summarise(saldo_diario = sum(Crédito, na.rm = TRUE) + 
+              sum(Débito, na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(saldo_acum = cumsum(saldo_diario) + saldo_inicial_bbva) 
+
+saldo_santander <- cuenta_banco_santander %>% 
+  group_by(Fecha, banco) %>% 
+  summarise(saldo_diario = sum(Crédito, na.rm = TRUE) + 
+              sum(Débito, na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(saldo_acum = cumsum(saldo_diario) + saldo_inicial_santander) 
+
+( rbind(saldo_bbva, saldo_santander) %>% 
+    mutate(Fecha = lubridate::as_date(Fecha)) %>% 
+    ggplot(aes(Fecha, saldo_acum)) +
+    geom_line(aes(color = banco)) +
+    scale_x_date(date_breaks = "1 week", date_labels = "%b-%d") +
+    scale_y_continuous(labels = scales::dollar_format(prefix="$")) +
+    labs(title = "Saldos cuentas en pesos",
+         x = "",
+         y = "",
+         color = "") +
+    theme_minimal() ) %>% 
+  ggplotly(dynamicTicks = TRUE) %>% 
+  rangeslider() %>%
+  layout(
+    hovermode = "x",
+    xaxis = list(
+      type = 'date',
+      tickformat = "%d-%b"
+    ))
+```
+
+### Enero
+
+Comming soon
+
+# Cuentas en dólares {.tabset}
+
+### Anual
+
+Comming soon
+
+### Enero
+

@@ -1,0 +1,6 @@
+name: "Expedición Ciencia"
+navbar:
+  title: "Expedición Ciencia"
+  left:
+    - text: ""
+      href: index.html
