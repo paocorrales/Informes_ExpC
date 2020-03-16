@@ -1,10 +1,24 @@
 ---
 title: "Informe Financiero"
 output:
-  prettydoc::html_pretty:
-    theme: cayman
-    highlight: github
+    html_document:
+      theme: journal
+urlcolor: #3fdd6b
 ---
+
+<style>
+.nav>li>a {
+    position: relative;
+    display: block;
+    padding: 10px 15px;
+    color: #3fdd6b;
+}
+.nav-pills>li.active>a, .nav-pills>li.active>a:hover, .nav-pills>li.active>a:focus {
+    color: #ffffff;
+    background-color: #3fdd6b;
+}
+</style>
+
 ```{r setup, echo=FALSE, cache=FALSE}
 library(knitr)
 library(rmdformats)
@@ -40,7 +54,7 @@ ggplot_add.interactivity <- function(object, plot, object_name) {
 }
 ```
 
-# Cuentas en pesos
+## Cuentas en pesos {.tabset .tabset-fade .tabset-pills}
 
 ```{r}
 # Meses a incluir
@@ -115,7 +129,7 @@ saldo_santander <- cuenta_banco_santander %>%
 
 Comming soon
 
-# Cuentas en dólares
+## Cuentas en dólares {.tabset .tabset-fade .tabset-pills}
 
 ### Anual
 
