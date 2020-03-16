@@ -1,7 +1,8 @@
 name: "Expedición Ciencia"
 output_dir: docs
 navbar:
-  title: "Expedición Ciencia"
+  title: "<div><img id=\"logo\" style=\"width: 30px;\" src=\"logo.jpg\" /> Expedición Ciencia</div>"
+  logo: logo.jpg
   left:
     - text: ""
       href: index.html

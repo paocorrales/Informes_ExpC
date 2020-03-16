@@ -87,7 +87,7 @@ cuenta_banco_santander <- map(meses, ~ read_sheet("https://docs.google.com/sprea
 
 ### Anual 
 
-Saldos diarios en la cuenta en pesos del banco BBVA
+Saldos diarios en las cuentas en pesos del banco BBVA y Santander Río.
 
 ```{r}
 saldo_bbva <- cuenta_banco_bbva %>% 
